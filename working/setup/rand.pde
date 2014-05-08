@@ -9,10 +9,13 @@ class RandomBlock {
   }
   
   void display(){
-    
-    fill(255,0,255);
-    rect(xPos,yPos,100,100);
+    int var = 0;
+    while(var <=100){
+      fill(255,0,255,0);
+      rect(xPos+var*32,yPos,64,32);
+      image(brick1,xPos,yPos);
+      var+=1;
+    }
     
   }
 }
-    
