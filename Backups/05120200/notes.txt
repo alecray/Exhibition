@@ -1,0 +1,1 @@
+- Fixed vibration at end of player move path
