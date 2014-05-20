@@ -44,8 +44,6 @@ class Player {
   
   int HPPotionAmount = 1;
   
-  int[] invSlot = {1,2,3,4,5,6,7,8,9,0};
-  
   Player(float xPos_, float yPos_, float speed_, int ammo_, float hp_) { //inputs are player xPos, player yPos, player Speed, player ammo, and player health
     
     xPos = xPos_;
@@ -110,11 +108,6 @@ class Player {
       textSize(8);
       text(inventory[i],player.xPos-190,player.yPos-150+(i*15));
     }
-    for(int i=0; i < invSlot.length; i++){
-      fill(0);
-      textSize(8);
-      text(invSlot[i], player.xPos-210, player.yPos-150+(i*15));
-    }
     for(int i=0; i < inventory.length; i++){
       if(inventory[i].contains(activeWeapon)){
         image(activeWeaponIndicator, player.xPos-230,player.yPos-163+(i*15));
@@ -152,8 +145,8 @@ class Player {
   
   void death(){
     if(hp <=0){
-      gameRunning = false;
-    }
+      playerAlive = false;
+      }
   }//end death
   
   void gifAssign(){
@@ -177,7 +170,11 @@ class Player {
     if(playerMovement == 4 && keyPressed == true){
       image(barb_rightGif, player.xPos, player.yPos);
     }
+    if(playerAlive == false){
+      image(barb_deathGif,player.xPos,player.yPos);
+      speed = 0;
     
+  }
     //FOR ATTACKING
     if(mousePressed){
       if(activeWeapon == "Axe"){

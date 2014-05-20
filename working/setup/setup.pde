@@ -12,6 +12,14 @@ boolean playerAlive;
 Tile spawn;
 Tile room1;
 Tile room2;
+Tile room3;
+Tile room4;
+Tile room5;
+Tile room6;
+Tile room7;
+Tile room8;
+Tile room9;
+Tile room10;
 //--------------------------end of tile DECLARATIONS
 PImage darkness; //the darkness that follows the player
 PImage brick1;
@@ -23,28 +31,37 @@ PImage activeWeaponIndicator;
 PImage commandBubble;
 PImage weaponTicker;
 PImage weaponSelector;
+PImage startScreen;
+
+//furniture
+PImage table;
 
 float timer = millis();
 
 GUI gui;
-
+int startScreenSelectorYPos = 300;
 Player player; //create the player object
-Light[] lights = new Light[1];
+//Light[] lights = new Light[1];
 
 Chest chest1;
+Chest chest2;
+
 Darkness darkness1;
 
-Monster[] goblin = new Monster[4]; //number in this array must be equal to the number of goblins present
+Monster[] goblin = new Monster[17]; //number in this array must be equal to the number of goblins present
+Monster[] ogre = new Monster[2];
 
 int playerMovement = 0; //used for loading gifs based on player direction
 
-Wall[] wall1V = new Wall[12];
-Wall[] wall1H = new Wall[12];
+Wall[] wall1V = new Wall[44];
+Wall[] wall1H = new Wall[44];
 
-Wall[] wall1LongV = new Wall[3];
-Wall[] wall1LongH = new Wall[3];
+Wall[] wall1LongV = new Wall[11];
+Wall[] wall1LongH = new Wall[12];
 
 Wall[] chestWall = new Wall[1];
+
+Lava[] lava = new Lava[1];
 
 HitBox playerHitBox;
 
@@ -72,6 +89,7 @@ Gif barb_downGif;
 Gif barb_upGif;
 Gif barb_leftGif;
 Gif barb_rightGif;
+Gif barb_deathGif;
 
 //--WEAPON GIFS
 //AXE
@@ -94,17 +112,24 @@ Gif sword_rotating;
 Gif hpPotion;
 
 //--MONSTER GIFS
-//--GOBLIN GIFS
-Gif goblin_idleGif;
-Gif goblin_downGif;
-Gif goblin_upGif;
-Gif goblin_leftGif;
-Gif goblin_rightGif;
-Gif goblin_atkGif;
-Gif goblin_deathGif;
+  //--GOBLIN GIFS
+  Gif goblin_idleGif;
+  Gif goblin_downGif;
+  Gif goblin_upGif;
+  Gif goblin_leftGif;
+  Gif goblin_rightGif;
+  Gif goblin_atkGif;
+  Gif goblin_deathGif;
+  
+  //--OGRE GIFS
+  Gif ogre_idleGif;
+  Gif ogre_leftGif;
+  Gif ogre_rightGif;
+  Gif ogre_atkGif;
 
 //--SCENERY GIFS
 Gif torch1;
+Gif lavaGif;
 
 void setup() {
   size(800, 600);
@@ -119,18 +144,33 @@ void setup() {
   spawn = new Tile(0, 300, 200, 2, 0);
   room1 = new Tile(1, spawn.xPos+320, spawn.yPos, 2, 2);
   room2 = new Tile(2, spawn.xPos+320, spawn.yPos+320, 2, 2);
+  room3 = new Tile(3, room2.xPos+320,room2.yPos, 2, 3);
+  room4 = new Tile(4, room1.xPos,room1.yPos-320,2,1);
+  room5 = new Tile(5, room4.xPos,room4.yPos-320,2,2);
+  room6 = new Tile(6, room5.xPos+320,room5.yPos,2,1);
+  room7 = new Tile(7, room6.xPos+320,room6.yPos,2,1);
+  room8 = new Tile(8, room6.xPos,room6.yPos-320,2,3);
+  room9 = new Tile(9, room7.xPos,room7.yPos+320,2,2);
+  room10 = new Tile(10, room9.xPos+320,room9.yPos,2,0);
+  
   //END TILE SETUP
 
   extraWalls();
+  lavaSetup();
+  lightSetup();
   monsterSpawn();
-
+  
+  //furniture
+  //image(table,spawn.xPos+100,spawn.xPos+200);
+  
   player = new Player(384, 284, 4, 50, 100); //define the player object, inputs are player xPos, player yPos, player Speed, player ammo, and player health, active Weapon
   player.setInitInventory();
   
   darkness1 = new Darkness();
 
   //chest creation: xpos,ypos,ione,itwo,ithree
-  chest1 = new Chest(spawn.xPos+200, spawn.yPos + 200, "HP Potion", "Tattered Robes", "Sword"); //in spawn
+  chest1 = new Chest(room3.xPos+220, room3.yPos + 220, "HP Potion", "Tattered Robes", "Sword"); //in spawn
+  chest2 = new Chest(room8.xPos+100,room8.yPos+16, "", "", " ");
 
   //torchTest = new Torch(300,0,0);
   //--WEAPONS Item ID, Type, Damage, Range
@@ -150,6 +190,7 @@ void setup() {
   commandBubble = loadImage("gfx/misc/commandBubble.png");
   weaponTicker = loadImage("gfx/misc/weaponTicker.png");
   weaponSelector = loadImage("gfx/misc/weaponSelector.png");
+  startScreen = loadImage("gfx/misc/startScreen1.png");
 
   //--WORLD 
   //--TILES
@@ -162,7 +203,9 @@ void setup() {
   skullchestInterior = loadImage("gfx/scenery/skullchestInterior.png");
   //torch1 = new Gif(this, "gfx/scenery/torch1.png");
   //torch1.loop();
-
+  lavaGif = new Gif(this, "gfx/scenery/lava_new.gif");
+  lavaGif.loop();
+  
   playerHitBox = new HitBox();
   //--PLAYER IMAGES-----------------------------------------------
   //BARB IDLE
@@ -180,31 +223,45 @@ void setup() {
   //BARB RIGHT
   barb_rightGif = new Gif(this, "gfx/sprites/barb/barb_right_new.gif");
   barb_rightGif.loop();
+  //BARB DEATH
+  barb_deathGif = new Gif(this, "gfx/sprites/barb/barb_death.gif");
+  barb_deathGif.loop();
   //end BARB IMAGES-------------------------------------------------------------
 
   //--MONSTER IMAGES
-  //GOBLIN IMAGES
-  //GOBLIN IDLE
-  goblin_idleGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_idle_new.gif");
-  goblin_idleGif.loop();
-  //GOBLIN DOWN
-  goblin_downGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_down_new.gif");
-  goblin_downGif.loop();
-  //GOBLIN UP
-  goblin_upGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_up_new.gif");
-  goblin_upGif.loop();
-  //GOBLIN LEFT
-  goblin_leftGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_left_new.gif");
-  goblin_leftGif.loop();
-  //GOBLIN RIGHT
-  goblin_rightGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_right_new.gif");
-  goblin_rightGif.loop();
-  //GOBLIN ATTACK 
-  goblin_atkGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_atk_new.gif");
-  goblin_atkGif.loop();
-  //GOBLIN DEATH 
-  goblin_deathGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_death_new.gif");
-  goblin_deathGif.play();
+    //GOBLIN IMAGES
+    //GOBLIN IDLE
+    goblin_idleGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_idle_new.gif");
+    goblin_idleGif.loop();
+    //GOBLIN DOWN
+    goblin_downGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_down_new.gif");
+    goblin_downGif.loop();
+    //GOBLIN UP
+    goblin_upGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_up_new.gif");
+    goblin_upGif.loop();
+    //GOBLIN LEFT
+    goblin_leftGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_left_new.gif");
+    goblin_leftGif.loop();
+    //GOBLIN RIGHT
+    goblin_rightGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_right_new.gif");
+    goblin_rightGif.loop();
+    //GOBLIN ATTACK 
+    goblin_atkGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_atk_new.gif");
+    goblin_atkGif.loop();
+    //GOBLIN DEATH 
+    goblin_deathGif = new Gif(this, "gfx/sprites/monsters/goblin/goblin_death_new.gif");
+    goblin_deathGif.loop();
+  
+    //OGRE IMAGES
+    //OGRE IDLE
+    ogre_idleGif = new Gif(this, "gfx/sprites/monsters/ogre/ogre_idle.gif");
+    ogre_idleGif.loop();
+    ogre_leftGif = new Gif(this, "gfx/sprites/monsters/ogre/ogre_left.gif");
+    ogre_leftGif.loop();
+    ogre_rightGif = new Gif(this, "gfx/sprites/monsters/ogre/ogre_right.gif");
+    ogre_rightGif.loop();
+    ogre_atkGif = new Gif(this, "gfx/sprites/monsters/ogre/ogre_atk.gif");
+    ogre_atkGif.loop();
 
   //--WEAPON IMAGES
   //AXE

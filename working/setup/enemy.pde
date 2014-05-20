@@ -22,14 +22,15 @@ class Monster
   boolean inRange = false; //while the monster is in range to attack
   float tempX;
   float tempY;
-  
+  float damage;
+  String type;
   float maxHP;
   float HP;
   
   //inputs are monster speed, monster size, monster xPos, monster yPos, monster attack range, hp
   //MONSTERS ARE DECLARED IN TILE CLASS
-  Monster(float speed_, float size_, float xPos_, float yPos_, float atkRNG_, float maxHP_) {
-    
+  Monster(String type_, float speed_, float size_, float xPos_, float yPos_, float atkRNG_, float maxHP_, float damage_) {
+    type = type_;
     speed = speed_;
     xSpeed = speed;
     ySpeed = 0;
@@ -42,6 +43,7 @@ class Monster
     
     maxHP = maxHP_;
     HP = maxHP;
+    damage = damage_;
 
   }//end of constructor
   
@@ -54,14 +56,26 @@ class Monster
   }//end display
   
   void hpDisplay() {
-    rectMode(CORNERS);
-    stroke(0);
-    fill(200,0,0);
-    rect(xPos - 10,yPos - 10, xPos - 10 + maxHP*0.55, yPos - 5); //the 0.55 here is the make the healthbar the right size
-    rectMode(CORNERS);
-    stroke(0);
-    fill(0,200,0);
-    rect(xPos - 10,yPos - 10, xPos - 10 + HP*0.55, yPos - 5); //the 0.55 here is the make the healthbar the right size
+    if(type == "Goblin"){
+      rectMode(CORNERS);
+      stroke(0);
+      fill(200,0,0);
+      rect(xPos - 10,yPos - 10, xPos - 10 + maxHP*0.55, yPos - 5); //the 0.55 here is the make the healthbar the right size
+      rectMode(CORNERS);
+      stroke(0);
+      fill(0,200,0);
+      rect(xPos - 10,yPos - 10, xPos - 10 + HP*0.55, yPos - 5); //the 0.55 here is the make the healthbar the right size
+    }
+    if(type == "Ogre"){
+      rectMode(CORNERS);
+      stroke(0);
+      fill(200,0,0);
+      rect(xPos - 10,yPos - 42, xPos - 10 + maxHP*0.2, yPos - 37); //the 0.55 here is the make the healthbar the right size
+      rectMode(CORNERS);
+      stroke(0);
+      fill(0,200,0);
+      rect(xPos - 10,yPos - 42, xPos - 10 + HP*0.2, yPos - 37); //the 0.55 here is the make the healthbar the right size
+    }
   }//end hpDisplay
   
   void patrol(float pX, float pY, float pW, float pH) {//a patrol function. inputs are x,y,width,height
@@ -200,32 +214,6 @@ class Monster
       //END MONSTER/HORIZONTAL WALLS HIT
     }
   }//end hit
-      /*//BEGIN PLAYER/MONSTER HIT DETECT
-      if (player.yPos < yPos+size && player.yPos > yPos+size-player.speed-1 && player.xPos < xPos+size && player.xPos+player.size > xPos){
-        player.yPos += speed*5;
-        playerLifebar.health -= 10; 
-        player.countY -= speed*5;
-      }//end bottom edge
-      
-      if (player.yPos+player.size > yPos && player.yPos+player.size < yPos+player.speed+1 && player.xPos < xPos+size && player.xPos + player.size > xPos){
-        player.yPos -= speed*5;
-        playerLifebar.health -= 10;
-        player.countY += speed*5;
-      }//end top edge
-      
-      if (player.xPos < xPos+size && player.xPos > xPos+size-player.speed-1 && player.yPos < yPos+size && player.yPos+player.size > yPos){
-        player.xPos += speed*5;
-        playerLifebar.health -= 10;
-        player.countX -= speed*5;
-      }//end right edge
-      
-      if (player.xPos+player.size > xPos && player.xPos+player.size < xPos+player.speed+1 && player.yPos < yPos+size && player.yPos + player.size > yPos){
-        player.xPos -= speed*5;
-        playerLifebar.health -= 10;
-        player.countX += speed*5;
-      }//end left edge
-      //END PLAYER/MONSTER HIT*/
-      
       
     //end for loop
     
@@ -239,7 +227,7 @@ class Monster
         && yPos > player.yPos - atkRNG
         && yPos < player.yPos + player.sizeY + atkRNG){ //if it's been more than 1000ms than last hit
         autoTimer = timer;
-        player.hp -= 10;
+        player.hp -= damage;
         attacking = true;
         inRange = true;
       }
@@ -269,29 +257,54 @@ class Monster
         
   }
     void gifAssign(){
-      //IDLE/AFK
-      if(monsterMovement == 0 && inRange == false){ 
-        image(goblin_idleGif, xPos, yPos); //display idle image at monster coords
-      }
-      //MOVING DOWN
-      if(monsterMovement == 3 && inRange == false){
-        image(goblin_downGif, xPos, yPos); //display moving down image at monster coords
-      }
-      //MOVING UP
-      if(monsterMovement == 1 && inRange == false){
-        image(goblin_upGif, xPos, yPos); //display moving up image at monster coords
-      }
-      //MOVING LEFT
-      if(monsterMovement == 2 && inRange == false){
-        image(goblin_leftGif, xPos, yPos); //display moving left image at monster coords
-      }
-      //MOVING RIGHT
-      if(monsterMovement == 4 && inRange == false){
-        image(goblin_rightGif, xPos, yPos); //display moving right image at monster coords
-      }
-      if(attacking == true && inRange == true){
-        image(goblin_atkGif, xPos,yPos);
-      }
+      //GOBLIN
+        //IDLE/AFK
+        if(type == "Goblin" && monsterMovement == 0 && inRange == false){ 
+          image(goblin_idleGif, xPos, yPos); //display idle image at monster coords
+        }
+        //MOVING DOWN
+        if(type == "Goblin" && monsterMovement == 3 && inRange == false){
+          image(goblin_downGif, xPos, yPos); //display moving down image at monster coords
+        }
+        //MOVING UP
+        if(type == "Goblin" && monsterMovement == 1 && inRange == false){
+          image(goblin_upGif, xPos, yPos); //display moving up image at monster coords
+        }
+        //MOVING LEFT
+        if(type == "Goblin" && monsterMovement == 2 && inRange == false){
+          image(goblin_leftGif, xPos, yPos); //display moving left image at monster coords
+        }
+        //MOVING RIGHT
+        if(type == "Goblin" && monsterMovement == 4 && inRange == false){
+          image(goblin_rightGif, xPos, yPos); //display moving right image at monster coords
+        }
+        if(type == "Goblin" && attacking == true && inRange == true){
+          image(goblin_atkGif, xPos,yPos);
+        }
+     //OGRE
+        if(type == "Ogre" && monsterMovement == 0 && inRange == false){ 
+          image(ogre_idleGif, xPos, yPos-32); //display idle image at monster coords
+        }
+        //MOVING DOWN
+        if(type == "Ogre" && monsterMovement == 3 && inRange == false){
+          image(ogre_idleGif, xPos, yPos-32); //display moving down image at monster coords
+        }
+        //MOVING UP
+        if(type == "Ogre" && monsterMovement == 1 && inRange == false){
+          image(ogre_idleGif, xPos, yPos-32);//display moving up image at monster coords
+        }
+        //MOVING LEFT
+        if(type == "Ogre" && monsterMovement == 2 && inRange == false){
+          image(ogre_leftGif, xPos, yPos-32);//display moving left image at monster coords 
+        }
+        //MOVING RIGHT
+        if(type == "Ogre" && monsterMovement == 4 && inRange == false){
+          image(ogre_rightGif, xPos, yPos-32); //display moving right image at monster coords
+        }
+        if(type == "Ogre" && attacking == true && inRange == true){
+          image(ogre_atkGif, xPos, yPos-32);
+        }
+      
   }//end gifAssign*/
 }//end monsterOne class
 
