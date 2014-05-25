@@ -1,0 +1,2 @@
+Weapon IDs;
+1hAxe = 1

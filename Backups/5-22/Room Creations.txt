@@ -1,0 +1,11 @@
+New Room Guide:
+1. Declare the tile under the setup tab at the top
+2. Setup the room under the setup tab under void setup()
+3. Create the room's walls under draw at the top
+4. Display the rooms under draw
+5. .lit the room at the bottom of draw
+6. Add 4 more walls to vertical wall array, 4 more walls to horizontal wall array
+7. Add the custom walls on top
+8. Add the monsters spawning in the monsterSpawn tab
+
+- Make sure it's lit under draw 
